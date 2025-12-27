@@ -3,6 +3,7 @@ package app.tuxguitar.app.action.impl.system;
 import app.tuxguitar.action.TGActionContext;
 import app.tuxguitar.app.TuxGuitar;
 import app.tuxguitar.app.system.config.TGConfigKeys;
+import app.tuxguitar.app.system.icons.TGSkinAutoUpdater;
 import app.tuxguitar.app.system.icons.TGSkinManager;
 import app.tuxguitar.app.ui.TGApplication;
 import app.tuxguitar.app.view.component.tab.TablatureEditor;
@@ -68,6 +69,7 @@ public class TGDisposeAction extends TGActionBase {
 		TGFretBoardEditor.getInstance(getContext()).dispose();
 		TablatureEditor.getInstance(getContext()).getTablature().dispose();
 		TGWindow.getInstance(getContext()).getWindow().dispose();
+		TGSkinAutoUpdater.getInstance(getContext()).dispose();
 		TGSkinManager.getInstance(getContext()).dispose();
 		TGApplication.getInstance(getContext()).dispose();
 		TGThreadManager.getInstance(getContext()).dispose();

@@ -18,6 +18,7 @@ import app.tuxguitar.ui.resource.UICursor;
 import app.tuxguitar.ui.resource.UIImage;
 import app.tuxguitar.ui.resource.UIRectangle;
 import app.tuxguitar.ui.toolbar.UIToolBar;
+import app.tuxguitar.ui.widget.UICheckBox;
 import app.tuxguitar.ui.widget.UICanvas;
 import app.tuxguitar.ui.widget.UIDropDownSelect;
 import app.tuxguitar.ui.widget.UILabel;
@@ -36,6 +37,7 @@ public class SkinOption extends TGSettingsOption{
 	private boolean initialized;
 	private List<SkinInfo> skins;
 	private UIDropDownSelect<SkinInfo> combo;
+	private UICheckBox autoSkin;
 	private UILabel nameLabel;
 	private UILabel authorLabel;
 	private UILabel versionLabel;
@@ -65,6 +67,10 @@ public class SkinOption extends TGSettingsOption{
 
 		this.combo = uiFactory.createDropDownSelect(composite);
 		compositeLayout.set(this.combo, 1, 1, UITableLayout.ALIGN_FILL, UITableLayout.ALIGN_FILL, true, true);
+
+		this.autoSkin = uiFactory.createCheckBox(composite);
+		this.autoSkin.setText(TuxGuitar.getProperty("settings.config.skin.auto"));
+		compositeLayout.set(this.autoSkin, 2, 1, UITableLayout.ALIGN_FILL, UITableLayout.ALIGN_FILL, true, true);
 
 		UITableLayout skinInfoLayout = new UITableLayout();
 		skinInfoComposite = uiFactory.createPanel(getPanel(), false);
@@ -106,6 +112,7 @@ public class SkinOption extends TGSettingsOption{
 	public void loadConfig(){
 		new Thread(new Runnable() {
 			public void run() {
+				final boolean autoSkin = getConfig().getBooleanValue(TGConfigKeys.SKIN_AUTO);
 				SkinOption.this.skins = new ArrayList<SkinInfo>();
 				String[] skinNames = TGFileUtils.getFileNames(getViewContext().getContext(), "skins");
 				if( skinNames != null ){
@@ -124,6 +131,7 @@ public class SkinOption extends TGSettingsOption{
 				TGSynchronizer.getInstance(getViewContext().getContext()).executeLater(new Runnable() {
 					public void run() {
 						if(!isDisposed()){
+							SkinOption.this.autoSkin.setSelected(autoSkin);
 							for(SkinInfo info : SkinOption.this.skins) {
 								UISelectItem<SkinInfo> item = new UISelectItem<SkinOption.SkinInfo>(info.getName(), info);
 								SkinOption.this.combo.addItem(item);
@@ -182,6 +190,7 @@ public class SkinOption extends TGSettingsOption{
 
 	public void updateConfig() {
 		if(this.initialized){
+			getConfig().setValue(TGConfigKeys.SKIN_AUTO, this.autoSkin.isSelected());
 			SkinInfo skinInfo = this.combo.getSelectedValue();
 			if( skinInfo != null ){
 				getConfig().setValue(TGConfigKeys.SKIN, skinInfo.getSkin());
@@ -191,6 +200,7 @@ public class SkinOption extends TGSettingsOption{
 
 	public void updateDefaults(){
 		if(this.initialized){
+			getConfig().setValue(TGConfigKeys.SKIN_AUTO, getDefaults().getValue(TGConfigKeys.SKIN_AUTO));
 			getConfig().setValue(TGConfigKeys.SKIN, getDefaults().getValue(TGConfigKeys.SKIN));
 		}
 	}

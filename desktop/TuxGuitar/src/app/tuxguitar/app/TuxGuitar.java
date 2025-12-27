@@ -17,6 +17,7 @@ import app.tuxguitar.app.system.config.TGConfigKeys;
 import app.tuxguitar.app.system.config.TGConfigManager;
 import app.tuxguitar.app.system.error.TGErrorAdapter;
 import app.tuxguitar.app.system.icons.TGIconManager;
+import app.tuxguitar.app.system.icons.TGSkinAutoUpdater;
 import app.tuxguitar.app.system.icons.TGSkinManager;
 import app.tuxguitar.app.system.keybindings.KeyBindingActionManager;
 import app.tuxguitar.app.system.language.TGLanguageManager;
@@ -138,6 +139,7 @@ public class TuxGuitar {
 
 	private void startUIContext(URL url) {
 		TGWindow.getInstance(TuxGuitar.this.context).createWindow();
+		TGSkinAutoUpdater.getInstance(this.context).start();
 
 		// Priority 3 ----------------------------------------------//
 		this.initMidiPlayer();
