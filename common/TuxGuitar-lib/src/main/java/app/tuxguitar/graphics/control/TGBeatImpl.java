@@ -376,19 +376,22 @@ public class TGBeatImpl extends TGBeat{
 		float noteY = (fromY + note.getScorePosY() + spacing);
 		float lineY = (fromY > noteY ? fromY : (fromY + (scoreLineSpacing * 4)));
 		float x = fromX + getPosX() + getSpacing(layout);
-		float x1 = x - (4 * scale);
-		float x2 = x + (12 * scale);
+		float x1 = layout.snapToPixel(x - (4 * scale));
+		float x2 = layout.snapToPixel(x + (12 * scale));
 
 		int direction = (fromY > noteY ? -1 : 1);
 		int requiredExtraLines = this.findRequiredExtraLines(layout, lineY, noteY, direction);
 		if( requiredExtraLines > 0 ) {
 			layout.setLineStyle(painter);
+			float snappedBaseY = layout.snapToPixel(lineY + (scoreLineSpacing * direction));
+			float snappedSpacing = layout.snapToPixel(lineY + (2f * scoreLineSpacing * direction)) - snappedBaseY;
 
 			for(int i = 0; i < requiredExtraLines ; i ++) {
 				painter.initPath();
 				painter.setAntialias(false);
-				painter.moveTo(x1, lineY + ((scoreLineSpacing * (i + 1)) * direction));
-				painter.lineTo(x2, lineY + ((scoreLineSpacing * (i + 1)) * direction));
+				float extraLineY = snappedBaseY + (i * snappedSpacing);
+				painter.moveTo(x1, extraLineY);
+				painter.lineTo(x2, extraLineY);
 				painter.closePath();
 			}
 		}

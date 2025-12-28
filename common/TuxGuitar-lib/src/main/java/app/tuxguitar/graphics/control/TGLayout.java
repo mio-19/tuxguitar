@@ -250,30 +250,36 @@ public abstract class TGLayout {
 			setLineStyle(painter, measureIsValid);
 			float tempX = ((x < 0)?0:x);
 			float tempY = y;
+			float snappedX = snapToPixel(tempX);
+			float snappedWidth = snapToPixel(tempX + width) - snappedX;
 
 			//partitura
 			if( (this.style & DISPLAY_SCORE) != 0 ){
 				float posY = tempY + ts.getPosition(TGTrackSpacing.POSITION_SCORE_MIDDLE_LINES);
+				float snappedBaseY = snapToPixel(posY);
+				float snappedSpacing = snapToPixel(posY + getScoreLineSpacing()) - snappedBaseY;
 
 				painter.initPath();
 				painter.setAntialias(false);
 				for(int i = 1;i <= 5;i ++){
-					painter.moveTo(tempX, posY);
-					painter.lineTo(tempX + width,posY);
-					posY += getScoreLineSpacing();
+					float lineY = snappedBaseY + ((i - 1) * snappedSpacing);
+					painter.moveTo(snappedX, lineY);
+					painter.lineTo(snappedX + snappedWidth, lineY);
 				}
 				painter.closePath();
 			}
 			//tablatura
 			if((this.style & DISPLAY_TABLATURE) != 0){
 				tempY += ts.getPosition(TGTrackSpacing.POSITION_TABLATURE);
+				float snappedBaseY = snapToPixel(tempY);
+				float snappedSpacing = snapToPixel(tempY + getStringSpacing()) - snappedBaseY;
 
 				painter.initPath();
 				painter.setAntialias(false);
 				for(int i = 0; i < track.stringCount();i++){
-					painter.moveTo(tempX,tempY);
-					painter.lineTo(tempX + width,tempY);
-					tempY += getStringSpacing();
+					float lineY = snappedBaseY + (i * snappedSpacing);
+					painter.moveTo(snappedX, lineY);
+					painter.lineTo(snappedX + snappedWidth, lineY);
 				}
 				painter.closePath();
 			}
@@ -310,6 +316,10 @@ public abstract class TGLayout {
 		painter.initPath(UIPainter.PATH_FILL);
 		painter.addRectangle(area.getX(), area.getY(), area.getWidth(), area.getHeight());
 		painter.closePath();
+	}
+
+	public float snapToPixel(float value) {
+		return Math.round(value);
 	}
 
 	protected float checkScale(){

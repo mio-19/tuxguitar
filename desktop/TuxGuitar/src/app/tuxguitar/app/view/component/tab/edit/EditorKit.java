@@ -435,18 +435,24 @@ public class EditorKit {
 				float x2 = 0;
 				float yFirstLine = (measure.getPosY() + measure.getTs().getPosition(TGTrackSpacing.POSITION_SCORE_MIDDLE_LINES));
 				float yLastLine = (yFirstLine + (lineSpacing * 4));
+				float snappedFirstLine = layout.snapToPixel(yFirstLine);
+				float snappedSpacing = layout.snapToPixel(yFirstLine + lineSpacing) - snappedFirstLine;
+				float snappedLastLine = snappedFirstLine + (4f * snappedSpacing);
 
 				for(int b = 0 ; b < measure.countBeats() ; b++ ){
 					TGBeatImpl beat = (TGBeatImpl)measure.getBeat(b);
 					if( isPaintableBeat(beat) ){
 						x1 = (measure.getHeaderImpl().getLeftSpacing(layout) + measure.getPosX() + beat.getPosX() + beat.getSpacing(layout));
 						x2 = x1 + width;
+						float snappedX1 = layout.snapToPixel(x1);
+						float snappedX2 = layout.snapToPixel(x2);
 
 						painter.setForeground(layout.getResources().getLineColor());
 						// reference: first line of score, move up line per line (2 notes) until too high
 						int noteIndex=FIRST_LINE_NOTE_INDEX[measure.getClef()-1];
 						int noteOctave=FIRST_LINE_NOTE_OCTAVE[measure.getClef() -1];
-						for(float y = (yFirstLine - lineSpacing); y >= (yFirstLine - topHeight); y -= lineSpacing){
+						int step = 1;
+						for(float y = (yFirstLine - lineSpacing); y >= (yFirstLine - topHeight); y -= lineSpacing, step++){
 							noteOctave = TGMusicKeyUtils.noteOctaveAddInterval(noteIndex, noteOctave, 2);
 							noteIndex = TGMusicKeyUtils.noteIndexAddInterval(noteIndex, 2);
 							if (TGMusicKeyUtils.midiNote(noteIndex, noteOctave) > maxValue) {
@@ -455,15 +461,17 @@ public class EditorKit {
 
 							painter.initPath();
 							painter.setAntialias(false);
-							painter.moveTo(x1, y);
-							painter.lineTo(x2, y);
+							float lineY = snappedFirstLine - (step * snappedSpacing);
+							painter.moveTo(snappedX1, lineY);
+							painter.lineTo(snappedX2, lineY);
 							painter.closePath();
 						}
 						// reference: last line of score, move down line per line (2 notes) until too low
 						noteIndex=TGMusicKeyUtils.noteIndexAddInterval(FIRST_LINE_NOTE_INDEX[measure.getClef()-1], -8);
 						noteOctave=TGMusicKeyUtils.noteOctaveAddInterval(
 								FIRST_LINE_NOTE_INDEX[measure.getClef()-1], FIRST_LINE_NOTE_OCTAVE[measure.getClef()-1], -8);
-						for(float y = yLastLine + lineSpacing; y <= (yLastLine + bottomHeight); y += lineSpacing){
+						step = 1;
+						for(float y = yLastLine + lineSpacing; y <= (yLastLine + bottomHeight); y += lineSpacing, step++){
 							noteOctave = TGMusicKeyUtils.noteOctaveAddInterval(noteIndex, noteOctave, -2);
 							noteIndex = TGMusicKeyUtils.noteIndexAddInterval(noteIndex, -2);
 							if (TGMusicKeyUtils.midiNote(noteIndex, noteOctave) < minValue) {
@@ -471,8 +479,9 @@ public class EditorKit {
 							}
 							painter.initPath();
 							painter.setAntialias(false);
-							painter.moveTo(x1, y);
-							painter.lineTo(x2, y);
+							float lineY = snappedLastLine + (step * snappedSpacing);
+							painter.moveTo(snappedX1, lineY);
+							painter.lineTo(snappedX2, lineY);
 							painter.closePath();
 						}
 					}
